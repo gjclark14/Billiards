@@ -15,14 +15,20 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.example.billiards.RequestCodes.*;
+
+
 enum RequestCodes { BACK, PLAYER, SCORE; }
 
 
 public class MainActivity extends AppCompatActivity {
     Player player;
-    ArrayList<Player> players = new ArrayList<Player>();
+    List<Player> players = Arrays.asList(new Player[3]);
+
+    static int currentPlayer;
 
 
     @Override
@@ -32,21 +38,24 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton addPlayerFab = findViewById(R.id.addPlayer);
+        addPlayerFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, AddPlayerActivity.class);
                 MainActivity.this.startActivityForResult(intent, PLAYER.ordinal());
+                currentPlayer++;
             }
         });
-    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+        FloatingActionButton addPlayerScoreFab = findViewById(R.id.addScore);
+        addPlayerScoreFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, ActivityAddPlayerScore.class);
+                MainActivity.this.startActivityForResult(intent, SCORE.ordinal());
+            }
+        });
     }
 
     @Override
@@ -55,7 +64,30 @@ public class MainActivity extends AppCompatActivity {
 
         // Request codes specify what activity you are referring to
         // Result code specifies the state of the result
+
+        // Add player
         if (requestCode == PLAYER.ordinal()) {
+            if(resultCode == Activity.RESULT_OK) {
+                Player p = data.getParcelableExtra("result");
+
+                assert p != null;
+
+                if (currentPlayer > 2) {
+                    Toast.makeText(this, "Cannot have more than 3 players, " +
+                            "not adding the last", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                players.set(currentPlayer, p);
+                Toast.makeText(this, p.getName(),Toast.LENGTH_LONG).show();
+            }
+            if(resultCode == Activity.RESULT_CANCELED){
+                Toast.makeText(this, "RESULT CANCELLED",Toast.LENGTH_LONG).show();
+            }
+        }
+
+        // Add score
+        if (requestCode == SCORE.ordinal()) {
             if(resultCode == Activity.RESULT_OK) {
                 Player p = data.getParcelableExtra("result");
                 assert p != null;
@@ -67,6 +99,13 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
     }
 
     @Override
