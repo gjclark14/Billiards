@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Billiards</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_add_player">AddPlayerActivity</string>
+    <string name="playername">PlayerName</string>
+</resources>
